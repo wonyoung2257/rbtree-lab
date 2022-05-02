@@ -313,35 +313,16 @@ int rbtree_erase(rbtree *t, node_t *z) {
 
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
   // TODO: implement to_array
-  
+  int idx = 0;
+  int *pidx = &idx;
+  inorder_to_array(t, t->root, pidx, arr);
   return 0;
 }
 
-void inorder(rbtree *t, node_t *root){
+void inorder_to_array(rbtree *t, node_t *root, int *pidx, key_t *arr){
   if (root != t->nil){
-    inorder(t, root->left);
-    printf("%d, %d\n", root->key, root->color);
-    inorder(t, root->right);
+    inorder_to_array(t, root->left, pidx,arr);
+    arr[(*pidx)++] = root->key;
+    inorder_to_array(t, root->right, pidx,arr);
   }
 }
-
-// int main(){
-//   rbtree *t = new_rbtree();
-//   // int test[] = {2,3,4,6,7,9,11,12,14,17,18,19,20,22};
-//   // for(int i = 0; i< sizeof(test)/sizeof(int); i++){
-//   //   rbtree_insert(t, test[i]);
-//   // }
-//   rbtree_insert(t, 10);
-//   rbtree_insert(t, 5);
-//   rbtree_insert(t, 20);
-//   rbtree_insert(t, 30);
-//   rbtree_insert(t, 15);
-//   node_t *q = rbtree_find(t, 20);
-//   rbtree_erase(t, q);
-
-//   printf("-----------\n");
-//   printf("###inorder###\n");
-//   inorder(t, t->root);
-
-//   return 0;
-// }
