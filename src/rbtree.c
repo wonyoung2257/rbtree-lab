@@ -8,16 +8,7 @@ rbtree *new_rbtree(void) {
   p->nil = nil;
   p->nil->color = RBTREE_BLACK;
   p->root = nil;
-  
   return p;  
-}
-
-void delete_rbtree(rbtree *t) {
-  // TODO: reclaim the tree nodes's memory
-  // free(t->nil);
-  remove_subtree(t, t->root);
-  free(t->nil);
-  free(t);
 }
 
 void remove_subtree(rbtree *t, node_t *node)
@@ -28,6 +19,13 @@ void remove_subtree(rbtree *t, node_t *node)
     remove_subtree(t, node->right);
     free(node);
   }
+}
+void delete_rbtree(rbtree *t) {
+  // TODO: reclaim the tree nodes's memory
+  // free(t->nil);
+  remove_subtree(t, t->root);
+  free(t->nil);
+  free(t);
 }
 
 void left_rotate(rbtree *t, node_t * x){
@@ -145,7 +143,7 @@ node_t *rbtree_insert(rbtree *t, const key_t key) {
   return t->root;
 }
 
-node_t *search_node(rbtree *t, node_t* root, const key_t key){
+node_t *search_node(const rbtree *t, node_t* root, const key_t key){
   if(root == t->nil){
     return NULL;
   }else if(root->key == key){
@@ -228,8 +226,8 @@ void rb_delete_fixup(rbtree *t, node_t* x){
       else {
         
         if (w->right->color == RBTREE_BLACK){
-          w->left->color == RBTREE_BLACK;
-          w->color == RBTREE_RED;
+          // w->left->color == RBTREE_BLACK;
+          // w->color == RBTREE_RED;
           right_rotate(t, w);
           w = x->parent->right;
         }
@@ -253,8 +251,8 @@ void rb_delete_fixup(rbtree *t, node_t* x){
       }
       else {
         if (w->left->color == RBTREE_BLACK){
-          w->right->color == RBTREE_BLACK;
-          w->color == RBTREE_RED;
+          // w->right->color == RBTREE_BLACK;
+          // w->color == RBTREE_RED;
           left_rotate(t, w);
           w = x->parent->left;
         }
@@ -285,8 +283,8 @@ int rbtree_erase(rbtree *t, node_t *z) {
     x = z->left;
     rb_translant(t, z, z->left);
   }else{
+    // 오른쪽에서 successor을 찾는다.
     y = tree_min(t, z->right);
-    // y = tree_max(t, z->left);
     y_color = y->color;
     x = y->right;
 
@@ -303,12 +301,22 @@ int rbtree_erase(rbtree *t, node_t *z) {
     y->left->parent = y;
     y->color = z->color;
   }
-  
+
+  // 삭제되는 색이 RED라면 특성 위반이 생기지 않는다.
+  // 삭제되는 색이 BLACK이라면 2, 4, 5번의 특성 위반이 생길 수 있다.
   if (y_color == RBTREE_BLACK) 
     rb_delete_fixup(t, x);
   
   free(z);
   return 0;
+}
+
+void inorder_to_array(const rbtree *t, node_t *root, int *pidx, key_t *arr){
+  if (root != t->nil){
+    inorder_to_array(t, root->left, pidx,arr);
+    arr[(*pidx)++] = root->key;
+    inorder_to_array(t, root->right, pidx,arr);
+  }
 }
 
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
@@ -317,12 +325,4 @@ int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
   int *pidx = &idx;
   inorder_to_array(t, t->root, pidx, arr);
   return 0;
-}
-
-void inorder_to_array(rbtree *t, node_t *root, int *pidx, key_t *arr){
-  if (root != t->nil){
-    inorder_to_array(t, root->left, pidx,arr);
-    arr[(*pidx)++] = root->key;
-    inorder_to_array(t, root->right, pidx,arr);
-  }
 }
